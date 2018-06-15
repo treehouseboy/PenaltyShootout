@@ -17,7 +17,7 @@ var ballX;
 var ballY;
 var ballHeight = 30;
 var ballWidth = 30;
-var ballSpeed = 2;
+var ballSpeed = 3;
 var ballShot = false;
 var ballRadius = 25;
 
@@ -32,6 +32,7 @@ var goalStartX = 175;
 var goalStartY = 27;
 var goalWidth = 150;
 var goalHeight = 5;
+var goalSpeed = 0.5;
 
 var goalDetected = false;
 var goalAdded = false;
@@ -51,6 +52,7 @@ function gameInit() {
 }
 
 function gameRun() {
+  moveGoal();
   movePlayer();
   moveBall();
   moveGoalKeeper();
@@ -100,6 +102,14 @@ function renderText() {
     GameCanvasContext.fillText("Misses: " + numMisses, gameCanvas.width/2 - 75, 400);
   }
 }
+
+function moveGoal() {
+  if (goalStartX + goalSpeed < 20 || goalStartX + goalSpeed > gameCanvas.width - goalWidth - 20) {
+    goalSpeed = -goalSpeed;
+  }
+  goalStartX += goalSpeed;
+}
+
 
 function renderPitch() {
   var heightFromTop = 27;
@@ -259,8 +269,8 @@ function resetGame() {
   if(!goalDetected) {
     numMisses++;
   }
-  playerX = gameCanvas.width/2;
-  playerY = gameCanvas.height - 50;
+  ballX = playerX;
+  ballY = playerY;
   ballShot = false;
   goalDetected = false;
   goalAdded = false;
