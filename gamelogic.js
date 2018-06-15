@@ -4,7 +4,8 @@ var GameCanvasContext;
 var playerX;
 var playerY;
 var playerRadius;
-var playerSpeed;
+var playerSpeed = 2;
+var playerColour = "#f200ff";
 
 var goalKeeperX;
 var goalKeeperY;
@@ -12,7 +13,10 @@ var goalKeeperSpeed;
 
 var ballX;
 var ballY;
-var ballSpeed;
+var ballSpeed = 2;
+var ballShot = false;
+var ballRadius = 10;
+var ballColour = "#ffffff";
 
 var leftKeyHeld = false;
 var rightKeyHeld= false;
@@ -30,29 +34,90 @@ function gameInit() {
 
 function gameRun() {
   movePlayer();
+  moveBall();
   render();
 }
 
 function render() {
+  GameCanvasContext.clearRect(0,0,gameCanvas.width,gameCanvas.height);
+  renderPitch();
   renderPlayer();
+  renderBall();
+}
+
+function renderPitch() {
+  var heightFromTop = 20;
+  var widthFromSide = 20;
+  var pitchHeight = gameCanvas.height;
+  var pitchWidth = gameCanvas.width;
+
+
+  //Canvas border
+  GameCanvasContext.strokeStyle= 'white';
+  GameCanvasContext.strokeRect(widthFromSide,heightFromTop,pitchWidth-(2*widthFromSide),pitchHeight-(2*heightFromTop));
+
+  //Penalty Box
+  GameCanvasContext.strokeRect(pitchWidth/5,heightFromTop,pitchWidth-(2*pitchWidth/5),pitchHeight/4);
+  //6yd Box
+  GameCanvasContext.strokeRect(pitchWidth*0.35,heightFromTop,pitchWidth*0.3,pitchHeight/12);
+
+  //Penalty circle
+  GameCanvasContext.beginPath();
+  GameCanvasContext.arc(pitchWidth/2,pitchHeight*(170/600),(pitchWidth-(2*pitchWidth/5))/7,0,Math.PI);
+  GameCanvasContext.stroke();
+  GameCanvasContext.closePath();
+
+  //Penalty spot
+  GameCanvasContext.beginPath();
+  GameCanvasContext.arc(pitchWidth/2,pitchHeight*(140/600),2,0,2*Math.PI);
+  GameCanvasContext.fillStyle = 'white';
+  GameCanvasContext.fill();
+  GameCanvasContext.stroke();
+  GameCanvasContext.closePath();
+}
+
+function renderBall() {
+  renderCircle(ballX, ballY, ballRadius, ballColour);
+}
+
+function renderCircle(x, y, radius, colour) {
+  GameCanvasContext.beginPath();
+  GameCanvasContext.arc(x, y, radius, 0, Math.PI*5);
+  GameCanvasContext.fillStyle = colour;
+  GameCanvasContext.fill();
+  GameCanvasContext.closePath();
+}
+
+function ballShoot() {
+  ballShot = true;
+}
+
+function moveBall() {
+  if (ballShot) {
+    ballY -= ballSpeed;
+  }
 }
 
 function movePlayer() {
+  if(!ballShot) {
+    ballX = playerX;
+    ballY = playerY;
+  }
+
   if (leftKeyHeld) {
-    playerX = playerX - 2;
+    if (playerX >= 0 + playerRadius) {
+      playerX = playerX - playerSpeed;
+    }
   }
   else if (rightKeyHeld) {
-    playerX = playerX + 2;
+    if (playerX <= gameCanvas.width - playerRadius) {
+      playerX = playerX + playerSpeed;
+    }
   }
 }
 
 function renderPlayer() {
-  GameCanvasContext.clearRect(0,0,gameCanvas.width,gameCanvas.height);
-  GameCanvasContext.beginPath();
-  GameCanvasContext.arc(playerX, playerY, playerRadius, 0, Math.PI*5);
-  GameCanvasContext.fillStyle = "#f200ff";
-  GameCanvasContext.fill();
-  GameCanvasContext.closePath();
+  renderCircle(playerX, playerY, playerRadius, playerColour);
 }
 
 function keyPressed() {
@@ -61,6 +126,9 @@ function keyPressed() {
   }
   else if (event.keyCode == 39) {
     rightKeyHeld = true;
+  }
+  else if (event.keyCode == 32) {
+    ballShoot();
   }
 }
 
