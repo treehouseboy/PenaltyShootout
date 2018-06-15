@@ -13,6 +13,8 @@ var goalKeeperSpeed;
 
 var ballX;
 var ballY;
+var ballHeight = 30;
+var ballWidth = 30;
 var ballSpeed = 2;
 var ballShot = false;
 var ballRadius = 10;
@@ -77,7 +79,9 @@ function renderPitch() {
 }
 
 function renderBall() {
-  renderCircle(ballX, ballY, ballRadius, ballColour);
+  var img=document.getElementById("football");
+  img.style.visibility='visible';
+  GameCanvasContext.drawImage(img, ballX-(ballWidth/2), ballY-(ballHeight/2), ballWidth,ballHeight);
 }
 
 function renderCircle(x, y, radius, colour) {
@@ -117,8 +121,11 @@ function movePlayer() {
 }
 
 function renderPlayer() {
-  renderCircle(playerX, playerY, playerRadius, playerColour);
-}
+//   renderCircle(playerX, playerY, playerRadius, playerColour);
+var img=document.getElementById("player");
+img.style.visibility='visible';
+GameCanvasContext.drawImage(img, playerX-90, playerY-75, 100,100);
+ }
 
 function keyPressed() {
   if (event.keyCode == 37) {
