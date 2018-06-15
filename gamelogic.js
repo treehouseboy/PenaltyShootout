@@ -21,6 +21,17 @@ var ballColour = "#ffffff";
 var leftKeyHeld = false;
 var rightKeyHeld= false;
 
+var numGoals = 0;
+var numMisses = 0
+var numAttempts = 5;
+
+var goalStartX = 200;
+var goalStartY = 27;
+var goalWidth = 100;
+var goalHeight = 5;;
+
+var goalDetected = false;
+var goalAdded = false;
 
 function gameInit() {
   gameCanvas = document.getElementById("gameCanvas");
@@ -35,6 +46,9 @@ function gameInit() {
 function gameRun() {
   movePlayer();
   moveBall();
+  checkGoal();
+  addGoalIfDetected();
+  checkIfResetNeeded();
   render();
 }
 
@@ -43,10 +57,31 @@ function render() {
   renderPitch();
   renderPlayer();
   renderBall();
+  renderText();
+  renderGoal();
+}
+
+function renderGoal() {
+  GameCanvasContext.beginPath();
+  GameCanvasContext.rect(goalStartX, goalStartY, goalWidth, goalHeight);
+  GameCanvasContext.fillStyle = 'white';
+  GameCanvasContext.fill();
+  GameCanvasContext.closePath();
+}
+
+function renderText() {
+  GameCanvasContext.font="20px Georgia";
+  GameCanvasContext.fillText("Goals: " + numGoals, gameCanvas.width - 100, 20);
+  GameCanvasContext.fillText("Misses: " + numMisses, 10, 20);
+  GameCanvasContext.fillText("Shots: " + numAttempts, gameCanvas.width/2 - 40, 20);
+  if(goalDetected) {
+    GameCanvasContext.font="30px Georgia";
+    GameCanvasContext.fillText("Goal!", gameCanvas.width/2 - 40, 300);
+  }
 }
 
 function renderPitch() {
-  var heightFromTop = 20;
+  var heightFromTop = 27;
   var widthFromSide = 20;
   var pitchHeight = gameCanvas.height;
   var pitchWidth = gameCanvas.width;
@@ -63,7 +98,7 @@ function renderPitch() {
 
   //Penalty circle
   GameCanvasContext.beginPath();
-  GameCanvasContext.arc(pitchWidth/2,pitchHeight*(170/600),(pitchWidth-(2*pitchWidth/5))/7,0,Math.PI);
+  GameCanvasContext.arc(pitchWidth/2,pitchHeight*(170/600) + 7,(pitchWidth-(2*pitchWidth/5))/7,0,Math.PI);
   GameCanvasContext.stroke();
   GameCanvasContext.closePath();
 
@@ -90,6 +125,7 @@ function renderCircle(x, y, radius, colour) {
 
 function ballShoot() {
   ballShot = true;
+  numAttempts--;
 }
 
 function moveBall() {
@@ -101,7 +137,7 @@ function moveBall() {
 function movePlayer() {
   if(!ballShot) {
     ballX = playerX;
-    ballY = playerY;
+    ballY = playerY - 10;
   }
 
   if (leftKeyHeld) {
@@ -113,6 +149,22 @@ function movePlayer() {
     if (playerX <= gameCanvas.width - playerRadius) {
       playerX = playerX + playerSpeed;
     }
+  }
+}
+
+function checkGoal() {
+  if(ballX >= goalStartX && ballX <= goalStartX + goalWidth) {
+    if (ballY >= goalStartY && ballY <= goalStartY + goalHeight) {
+      console.log("goal detected");
+      goalDetected = true;
+    }
+  }
+}
+
+function addGoalIfDetected() {
+  if(goalDetected && !goalAdded) {
+    numGoals++;
+    goalAdded = true;
   }
 }
 
@@ -138,5 +190,22 @@ function keyReleased() {
   }
   else if (event.keyCode == 39) {
     rightKeyHeld = false;
+  }
+}
+
+function resetGame() {
+  if(!goalDetected) {
+    numMisses++;
+  }
+  playerX = gameCanvas.width/2;
+  playerY = gameCanvas.height - 50;
+  ballShot = false;
+  goalDetected = false;
+  goalAdded = false;
+}
+
+function checkIfResetNeeded() {
+  if(ballY < -250) {
+    resetGame();
   }
 }
