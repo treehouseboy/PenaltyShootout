@@ -35,6 +35,8 @@ var goalHeight = 5;;
 var goalDetected = false;
 var goalAdded = false;
 
+var gameOver = false;
+
 function gameInit() {
   gameCanvas = document.getElementById("gameCanvas");
   gameCanvas.style.backgroundColor = "#09b800";
@@ -79,6 +81,14 @@ function renderText() {
   if(goalDetected) {
     GameCanvasContext.font="30px Georgia";
     GameCanvasContext.fillText("Goal!", gameCanvas.width/2 - 40, 300);
+  }
+  if (!goalDetected && ballY < 28 + ballRadius) {
+    GameCanvasContext.font="30px Georgia";
+    GameCanvasContext.fillText("Miss!", gameCanvas.width/2 - 40, 300);
+  }
+  if (gameOver) {
+    GameCanvasContext.font="30px Georgia";
+    GameCanvasContext.fillText("Game Over!", gameCanvas.width/2 - 50, 300);
   }
 }
 
@@ -128,7 +138,13 @@ function renderCircle(x, y, radius, colour) {
 }
 
 function ballShoot() {
-  ballShot = true;
+  if (numAttempts <= 0) {
+    gameOver = true;
+  }
+  else {
+    ballShot = true;
+  }
+
   numAttempts--;
 }
 
@@ -145,12 +161,12 @@ function movePlayer() {
   }
 
   if (leftKeyHeld) {
-    if (playerX >= 0 + playerRadius) {
+    if (playerX >= 23 + playerRadius) {
       playerX = playerX - playerSpeed;
     }
   }
   else if (rightKeyHeld) {
-    if (playerX <= gameCanvas.width - playerRadius) {
+    if (playerX <= gameCanvas.width - playerRadius - 23) {
       playerX = playerX + playerSpeed;
     }
   }
